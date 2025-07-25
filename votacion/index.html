@@ -5,35 +5,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Canario DJ - Elegí un tema</title>
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
       font-family: 'Arial', sans-serif;
       background: radial-gradient(circle at 30% 30%, #000000, transparent 60%),
                   radial-gradient(circle at 70% 70%, #000000, transparent 60%),
                   radial-gradient(circle at 80% 20%, #000000, transparent 60%),
-                  radial-gradient(circle at 20% 80%, #ff0066da, transparent 60%),
-                  linear-gradient(135deg, #000000 0%, #940000 100%);
-  background-blend-mode: screen, overlay;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  min-height: 100vh;
-  padding: 2rem 1rem;
-  overflow-x: hidden;
+                  radial-gradient(circle at 20% 80%, #ff0066, transparent 60%),
+                  linear-gradient(135deg, #000000 0%, #ff0033 100%);
+      background-blend-mode: screen, overlay;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+      overflow-x: hidden;
+      box-sizing: border-box;
+    }
+
+    *, *::before, *::after {
+      box-sizing: inherit;
     }
 
     h1 {
       font-size: 2.5rem;
-      margin-bottom: 0.5rem;
       text-align: center;
+      margin-bottom: 0.5rem;
     }
 
     .hashtag {
-      font-size: 0.9rem;
+      font-size: 1rem;
       opacity: 0.7;
       margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    p {
+      margin: 0 0 1.5rem;
+      font-size: 1.2rem;
+      text-align: center;
     }
 
     .formulario {
@@ -42,13 +54,13 @@
       border-radius: 10px;
       width: 100%;
       max-width: 400px;
-      margin: 1rem auto;
+      margin: 0 auto;
     }
 
     .formulario label {
       display: block;
       margin: 1rem 0 0.5rem;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
     }
 
     .formulario input[type="checkbox"] {
@@ -62,7 +74,7 @@
       margin-top: 1.5rem;
       border: none;
       border-radius: 10px;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       cursor: pointer;
       width: 100%;
     }
@@ -71,9 +83,9 @@
       margin-top: 2rem;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      align-items: center;
+      gap: 0.5rem;
       font-size: 1.1rem;
-      text-align: center;
     }
 
     .redes a {
@@ -83,7 +95,7 @@
     }
 
     .redes a:hover {
-      color: #ffffff;
+      color: #ff99cc;
     }
   </style>
 </head>
@@ -92,7 +104,6 @@
   <h1>CANARIO DJ</h1>
   <p>Elegí un tema</p>
 
-  <!-- FORMULARIO DE VOTACIÓN -->
   <form class="formulario" onsubmit="enviarVoto(event)">
     <label><input type="checkbox" name="musica" value="Guaracha"> Guaracha</label>
     <label><input type="checkbox" name="musica" value="Reggaeton viejo"> Reggaeton viejo</label>
@@ -102,47 +113,40 @@
     <button class="boton" type="submit">Votar</button>
   </form>
 
-  <!-- REDES Y CONTACTO -->
   <div class="redes">
     <a href="https://instagram.com/canariodj" target="_blank">@canariodj</a>
-    <a href="https://mpago.la/tu_link_de_propina" target="_blank"> Mercado pago </a>
+    <a href="https://mpago.la/tu_link_de_propina" target="_blank">Mercado pago</a>
   </div>
 
-<script>
-  function enviarVoto(e) {
-    e.preventDefault();
+  <script>
+    function enviarVoto(e) {
+      e.preventDefault();
+      const seleccionados = document.querySelectorAll('input[name="musica"]:checked');
+      const boton = document.querySelector('.boton');
 
-    const seleccionados = document.querySelectorAll('input[name="musica"]:checked');
-    const boton = document.querySelector('.boton');
+      boton.style.backgroundColor = '#000000';
 
-    // Resetear colores anteriores
-    boton.style.backgroundColor = '#000000';
+      if (seleccionados.length === 0) {
+        boton.style.backgroundColor = '#a80000';
+        return;
+      }
 
-    if (seleccionados.length === 0) {
-      boton.style.backgroundColor = '#a80000'; // rojo
-      return;
+      const votos = Array.from(seleccionados).map(cb => cb.value).join(', ');
+
+      fetch("https://script.google.com/macros/s/AKfycbzDAYsqZEHUw4DaTcnY100pzhHs5_4Rdu21nUZmM72Q30RKlqQhsq5eP8FO1SwOk9x-dw/exec", {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: "votos=" + encodeURIComponent(votos)
+      }).then(() => {
+        boton.style.backgroundColor = '#007f00';
+        document.querySelector('form').reset();
+        setTimeout(() => { boton.style.backgroundColor = '#000000'; }, 3000);
+      });
     }
-
-    const votos = Array.from(seleccionados).map(cb => cb.value).join(', ');
-
-    fetch("https://script.google.com/macros/s/AKfycbzDAYsqZEHUw4DaTcnY100pzhHs5_4Rdu21nUZmM72Q30RKlqQhsq5eP8FO1SwOk9x-dw/exec", {
-      method: "POST",
-      mode: "no-cors",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: "votos=" + encodeURIComponent(votos)
-    }).then(() => {
-      boton.style.backgroundColor = '#007f00'; // verde
-      document.querySelector('form').reset();
-
-      // Volver al color original después de 3 segundos
-      setTimeout(() => {
-        boton.style.backgroundColor = '#000000';
-      }, 3000);
-    });
-  }
-</script>
-
+  </script>
 </body>
 </html>
+
