@@ -119,33 +119,41 @@
   </div>
 
   <script>
-    function enviarVoto(e) {
-      e.preventDefault();
-      const seleccionados = document.querySelectorAll('input[name="musica"]:checked');
-      const boton = document.querySelector('.boton');
+function enviarVoto(e) {
+  e.preventDefault();
 
+  const seleccionados = document.querySelectorAll('input[name="musica"]:checked');
+  const boton = document.querySelector('.boton');
+
+  // Resetear colores anteriores
+  boton.style.backgroundColor = '#000000';
+
+  if (seleccionados.length === 0) {
+    boton.style.backgroundColor = '#a80000'; // rojo
+    return;
+  }
+
+  // ✅ Mostrar verde inmediatamente
+  boton.style.backgroundColor = '#007f00';
+
+  const votos = Array.from(seleccionados).map(cb => cb.value).join(', ');
+
+  fetch("https://script.google.com/macros/s/AKfycbzDAYsqZEHUw4DaTcnY100pzhHs5_4Rdu21nUZmM72Q30RKlqQhsq5eP8FO1SwOk9x-dw/exec", {
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: "votos=" + encodeURIComponent(votos)
+  }).then(() => {
+    document.querySelector('form').reset();
+
+    // Volver al color original después de 3 segundos
+    setTimeout(() => {
       boton.style.backgroundColor = '#000000';
-
-      if (seleccionados.length === 0) {
-        boton.style.backgroundColor = '#a80000';
-        return;
-      }
-
-      const votos = Array.from(seleccionados).map(cb => cb.value).join(', ');
-
-      fetch("https://script.google.com/macros/s/AKfycbzDAYsqZEHUw4DaTcnY100pzhHs5_4Rdu21nUZmM72Q30RKlqQhsq5eP8FO1SwOk9x-dw/exec", {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: "votos=" + encodeURIComponent(votos)
-      }).then(() => {
-        boton.style.backgroundColor = '#007f00';
-        document.querySelector('form').reset();
-        setTimeout(() => { boton.style.backgroundColor = '#000000'; }, 3000);
-      });
-    }
+    }, 3000);
+  });
+}
   </script>
 </body>
 </html>
