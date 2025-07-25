@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canario DJ - Elegí un tema</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background: radial-gradient(circle at 30% 30%, #000000, transparent 60%),
+                  radial-gradient(circle at 70% 70%, #000000, transparent 60%),
+                  radial-gradient(circle at 80% 20%, #000000, transparent 60%),
+                  radial-gradient(circle at 20% 80%, #ff0066da, transparent 60%),
+                  linear-gradient(135deg, #000000 0%, #940000 100%);
+      background-blend-mode: screen, overlay;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    .hashtag {
+      font-size: 0.9rem;
+      opacity: 0.7;
+      margin-bottom: 1rem;
+    }
+
+    .formulario {
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 1.5rem;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 400px;
+      margin: 1rem auto;
+    }
+
+    .formulario label {
+      display: block;
+      margin: 1rem 0 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .formulario input[type="checkbox"] {
+      margin-right: 0.5rem;
+    }
+
+    .boton {
+      background: #000000;
+      color: white;
+      padding: 1rem;
+      margin-top: 1.5rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .redes {
+      margin-top: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      font-size: 1.1rem;
+      text-align: center;
+    }
+
+    .redes a {
+      color: #ffffff;
+      text-decoration: none;
+      transition: 0.3s ease;
+    }
+
+    .redes a:hover {
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <div class="hashtag">#NOCANARIONOPARTY</div>
+  <h1>CANARIO DJ</h1>
+  <p>Elegí un tema</p>
+
+  <!-- FORMULARIO DE VOTACIÓN -->
+  <form class="formulario" onsubmit="enviarVoto(event)">
+    <label><input type="checkbox" name="musica" value="Reggaetón"> Reggaetón</label>
+    <label><input type="checkbox" name="musica" value="Electrónica"> Electrónica</label>
+    <label><input type="checkbox" name="musica" value="Trap"> Trap</label>
+    <label><input type="checkbox" name="musica" value="Cumbia"> Cumbia</label>
+    <label><input type="checkbox" name="musica" value="Otro"> Otro</label>
+    <button class="boton" type="submit">Votar</button>
+  </form>
+
+  <!-- REDES Y CONTACTO -->
+  <div class="redes">
+    <a href="https://instagram.com/canariodj" target="_blank">@canariodj</a>
+    <a href="https://mpago.la/tu_link_de_propina" target="_blank"> Mercado pago </a>
+  </div>
+
+<script>
+  function enviarVoto(e) {
+    e.preventDefault();
+
+    const seleccionados = document.querySelectorAll('input[name="musica"]:checked');
+    const boton = document.querySelector('.boton');
+
+    // Resetear colores anteriores
+    boton.style.backgroundColor = '#000000';
+
+    if (seleccionados.length === 0) {
+      boton.style.backgroundColor = '#a80000'; // rojo
+      return;
+    }
+
+    const votos = Array.from(seleccionados).map(cb => cb.value).join(', ');
+
+    fetch("https://script.google.com/macros/s/AKfycbzDAYsqZEHUw4DaTcnY100pzhHs5_4Rdu21nUZmM72Q30RKlqQhsq5eP8FO1SwOk9x-dw/exec", {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: "votos=" + encodeURIComponent(votos)
+    }).then(() => {
+      boton.style.backgroundColor = '#007f00'; // verde
+      document.querySelector('form').reset();
+
+      // Volver al color original después de 3 segundos
+      setTimeout(() => {
+        boton.style.backgroundColor = '#000000';
+      }, 3000);
+    });
+  }
+</script>
+
+</body>
+</html>

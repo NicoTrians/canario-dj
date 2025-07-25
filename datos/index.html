@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Resultados - Canario DJ</title>
+  <style>
+    body {
+      background: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    table {
+      margin: 2rem auto;
+      border-collapse: collapse;
+      color: white;
+      font-size: 1.2rem;
+    }
+
+    th, td {
+      padding: 0.7rem 1.2rem;
+      border: 1px solid white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Resultados de Votación</h1>
+
+  <table id="tabla">
+    <thead>
+      <tr>
+        <th>Género</th>
+        <th>Votos</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const SHEET_ID = '1nNla3oWcFRgRnERxqWq5arEBIXCLeKmWNPN--yCSPs8';
+    const SHEET_NAME = 'Hoja 1';
+    const API_URL = `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
+
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(data => {
+        const conteo = {};
+
+        data.forEach(fila => {
+          const votos = fila.Votos || fila.votos || '';
+          votos.split(',').map(v => v.trim()).forEach(voto => {
+            if (voto) {
+              conteo[voto] = (conteo[voto] || 0) + 1;
+            }
+          });
+        });
+
+        const tbody = document.querySelector("#tabla tbody");
+        Object.entries(conteo).forEach(([genero, cantidad]) => {
+          const fila = document.createElement("tr");
+          fila.innerHTML = `<td>${genero}</td><td>${cantidad}</td>`;
+          tbody.appendChild(fila);
+        });
+      })
+      .catch(err => {
+        document.body.innerHTML += `<p style="color: red;">Error al cargar los datos.</p>`;
+        console.error(err);
+      });
+  </script>
+</body>
+</html>
