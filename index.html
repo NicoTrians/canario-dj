@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Canario DJ - Elegí un tema</title>
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
       font-family: 'Arial', sans-serif;
       background: radial-gradient(circle at 30% 30%, #000000, transparent 60%),
                   radial-gradient(circle at 70% 70%, #000000, transparent 60%),
@@ -22,6 +23,11 @@
       min-height: 100vh;
       padding: 2rem 1rem;
       overflow-x: hidden;
+      box-sizing: border-box;
+    }
+
+    *, *::before, *::after {
+      box-sizing: inherit;
     }
 
     h1 {
@@ -94,11 +100,11 @@
 
   <!-- FORMULARIO DE VOTACIÓN -->
   <form class="formulario" onsubmit="enviarVoto(event)">
-    <label><input type="checkbox" name="musica" value="Reggaetón"> Guaracha</label>
-    <label><input type="checkbox" name="musica" value="Electrónica"> Reggaeton viejo</label>
-    <label><input type="checkbox" name="musica" value="Trap"> Techengue</label>
-    <label><input type="checkbox" name="musica" value="Cumbia"> Cachengue</label>
-    <label><input type="checkbox" name="musica" value="Otro"> RKT</label>
+    <label><input type="checkbox" name="musica" value="Guaracha"> Guaracha</label>
+    <label><input type="checkbox" name="musica" value="Reggaeton viejo"> Reggaeton viejo</label>
+    <label><input type="checkbox" name="musica" value="Techengue"> Techengue</label>
+    <label><input type="checkbox" name="musica" value="Cachengue"> Cachengue</label>
+    <label><input type="checkbox" name="musica" value="RKT"> RKT</label>
     <button class="boton" type="submit">Votar</button>
   </form>
 
@@ -108,41 +114,40 @@
     <a href="https://mpago.la/tu_link_de_propina" target="_blank"> Mercado pago </a>
   </div>
 
-<script>
-  function enviarVoto(e) {
-    e.preventDefault();
+  <script>
+    function enviarVoto(e) {
+      e.preventDefault();
 
-    const seleccionados = document.querySelectorAll('input[name="musica"]:checked');
-    const boton = document.querySelector('.boton');
+      const seleccionados = document.querySelectorAll('input[name="musica"]:checked');
+      const boton = document.querySelector('.boton');
 
-    // Resetear colores anteriores
-    boton.style.backgroundColor = '#000000';
+      // Resetear colores anteriores
+      boton.style.backgroundColor = '#000000';
 
-    if (seleccionados.length === 0) {
-      boton.style.backgroundColor = '#a80000'; // rojo
-      return;
+      if (seleccionados.length === 0) {
+        boton.style.backgroundColor = '#a80000'; // rojo
+        return;
+      }
+
+      const votos = Array.from(seleccionados).map(cb => cb.value).join(', ');
+
+      fetch("https://script.google.com/macros/s/AKfycbzDAYsqZEHUw4DaTcnY100pzhHs5_4Rdu21nUZmM72Q30RKlqQhsq5eP8FO1SwOk9x-dw/exec", {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: "votos=" + encodeURIComponent(votos)
+      }).then(() => {
+        boton.style.backgroundColor = '#007f00'; // verde
+        document.querySelector('form').reset();
+
+        // Volver al color original después de 3 segundos
+        setTimeout(() => {
+          boton.style.backgroundColor = '#000000';
+        }, 3000);
+      });
     }
-
-    const votos = Array.from(seleccionados).map(cb => cb.value).join(', ');
-
-    fetch("https://script.google.com/macros/s/AKfycbzDAYsqZEHUw4DaTcnY100pzhHs5_4Rdu21nUZmM72Q30RKlqQhsq5eP8FO1SwOk9x-dw/exec", {
-      method: "POST",
-      mode: "no-cors",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: "votos=" + encodeURIComponent(votos)
-    }).then(() => {
-      boton.style.backgroundColor = '#007f00'; // verde
-      document.querySelector('form').reset();
-
-      // Volver al color original después de 3 segundos
-      setTimeout(() => {
-        boton.style.backgroundColor = '#000000';
-      }, 3000);
-    });
-  }
-</script>
-
+  </script>
 </body>
 </html>
