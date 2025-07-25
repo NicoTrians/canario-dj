@@ -2,148 +2,90 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <title>Resultados - Canario DJ</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Canario DJ - Elegí un tema</title>
   <style>
     body {
-      margin: 0;
-      font-family: 'Arial', sans-serif;
-      background: radial-gradient(circle at 30% 30%, #000000, transparent 60%),
-                  radial-gradient(circle at 70% 70%, #000000, transparent 60%),
-                  radial-gradient(circle at 80% 20%, #000000, transparent 60%),
-                  radial-gradient(circle at 20% 80%, #ff0066da, transparent 60%),
-                  linear-gradient(135deg, #000000 0%, #940000 100%);
-      background-blend-mode: screen, overlay;
+      background: black;
       color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
+      font-family: Arial, sans-serif;
       padding: 2rem 1rem;
-      overflow-x: hidden;
+      text-align: center;
     }
 
     h1 {
       font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-      text-align: center;
+      margin-bottom: 2rem;
     }
 
-    .hashtag {
-      font-size: 0.9rem;
-      opacity: 0.7;
-      margin-bottom: 1rem;
-    }
-
-    .formulario {
-      background-color: rgba(0, 0, 0, 0.7);
-      padding: 1.5rem;
-      border-radius: 10px;
-      width: 100%;
-      max-width: 400px;
-      margin: 1rem auto;
-    }
-
-    .formulario label {
-      display: block;
-      margin: 1rem 0 0.5rem;
-      font-size: 1.1rem;
-    }
-
-    .formulario input[type="checkbox"] {
-      margin-right: 0.5rem;
-    }
-
-    .boton {
-      background: #000000;
+    table {
+      margin: 0 auto;
+      border-collapse: collapse;
       color: white;
-      padding: 1rem;
-      margin-top: 1.5rem;
-      border: none;
-      border-radius: 10px;
-      font-size: 1.2rem;
-      cursor: pointer;
       width: 100%;
+      max-width: 600px;
+      font-size: 1.5rem;
     }
 
-    .redes {
-      margin-top: 2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      font-size: 1.1rem;
-      text-align: center;
+    th, td {
+      padding: 1rem;
+      border: 1px solid white;
     }
 
-    .redes a {
-      color: #ffffff;
-      text-decoration: none;
-      transition: 0.3s ease;
-    }
-
-    .redes a:hover {
-      color: #ffffff;
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 6.5vw;
+      }
+      table {
+        font-size: 5.5vw;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="hashtag">#NOCANARIONOPARTY</div>
-  <h1>CANARIO DJ</h1>
-  <p>Elegí un tema</p>
+  <h1>Resultados de Votación</h1>
 
-  <!-- FORMULARIO DE VOTACIÓN -->
-  <form class="formulario" onsubmit="enviarVoto(event)">
-    <label><input type="checkbox" name="musica" value="Guaracha"> Guaracha</label>
-    <label><input type="checkbox" name="musica" value="Reggaeton viejo"> Reggaeton viejo</label>
-    <label><input type="checkbox" name="musica" value="Techengue"> Techengue</label>
-    <label><input type="checkbox" name="musica" value="Cachengue"> Cachengue</label>
-    <label><input type="checkbox" name="musica" value="RKT"> RKT</label>
-    <button class="boton" type="submit">Votar</button>
-  </form>
+  <table id="tabla">
+    <thead>
+      <tr>
+        <th>Género</th>
+        <th>Votos</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-  <!-- REDES Y CONTACTO -->
-  <div class="redes">
-    <a href="https://instagram.com/canariodj" target="_blank">@canariodj</a>
-    <a href="https://mpago.la/tu_link_de_propina" target="_blank"> Mercado pago </a>
-  </div>
+  <script>
+    const SHEET_ID = '1nNla3oWcFRgRnERxqWq5arEBIXCLeKmWNPN--yCSPs8';
+    const SHEET_NAME = 'Hoja 1';
+    const API_URL = `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
 
-<script>
-  function enviarVoto(e) {
-    e.preventDefault();
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(data => {
+        const conteo = {};
 
-    const seleccionados = document.querySelectorAll('input[name="musica"]:checked');
-    const boton = document.querySelector('.boton');
+        data.forEach(fila => {
+          const votos = fila.Votos || fila.votos || '';
+          votos.split(',').map(v => v.trim()).forEach(voto => {
+            if (voto) {
+              conteo[voto] = (conteo[voto] || 0) + 1;
+            }
+          });
+        });
 
-    // Resetear colores anteriores
-    boton.style.backgroundColor = '#000000';
-
-    if (seleccionados.length === 0) {
-      boton.style.backgroundColor = '#a80000'; // rojo
-      return;
-    }
-
-    const votos = Array.from(seleccionados).map(cb => cb.value).join(', ');
-
-    fetch("https://script.google.com/macros/s/AKfycbzDAYsqZEHUw4DaTcnY100pzhHs5_4Rdu21nUZmM72Q30RKlqQhsq5eP8FO1SwOk9x-dw/exec", {
-      method: "POST",
-      mode: "no-cors",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: "votos=" + encodeURIComponent(votos)
-    }).then(() => {
-      boton.style.backgroundColor = '#007f00'; // verde
-      document.querySelector('form').reset();
-
-      // Volver al color original después de 3 segundos
-      setTimeout(() => {
-        boton.style.backgroundColor = '#000000';
-      }, 3000);
-    });
-  }
-</script>
-
+        const tbody = document.querySelector("#tabla tbody");
+        Object.entries(conteo).forEach(([genero, cantidad]) => {
+          const fila = document.createElement("tr");
+          fila.innerHTML = `<td>${genero}</td><td>${cantidad}</td>`;
+          tbody.appendChild(fila);
+        });
+      })
+      .catch(err => {
+        document.body.innerHTML += `<p style="color: red;">Error al cargar los datos.</p>`;
+        console.error(err);
+      });
+  </script>
 </body>
 </html>
 
